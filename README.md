@@ -3,7 +3,7 @@
 > **Course:** CSC289 – Capstone  
 > **Institution:** Wake Technical Community College  
 > **Term:** Spring 2026  
-> **Team:** *[Your Team Name Here]*
+> **Team:** *Team 9*
 
 ---
 
