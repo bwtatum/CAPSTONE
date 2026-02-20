@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block title %}Admin Portal{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Admin Portal</h2>
+    <p class="small">Manage schedules and policy controls.</p>
+
+    <div class="row">
+      <a class="btn primary" href="{% url 'admin_schedule' %}">Schedule and Policy</a>
+      <a class="btn" href="{% url 'timesheet' %}">Timesheets</a>
+    </div>
+  </div>
+{% endblock %}

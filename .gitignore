@@ -1,0 +1,65 @@
+# ===============================
+# PYTHON
+# ===============================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# ===============================
+# DJANGO
+# ===============================
+
+# Local development database
+db.sqlite3
+
+# Media files (if you add uploads later)
+media/
+
+# ===============================
+# ENVIRONMENT VARIABLES
+# ===============================
+
+.env
+.env.*
+
+# ===============================
+# WINDOWS SYSTEM FILES
+# ===============================
+
+Thumbs.db
+desktop.ini
+
+# ===============================
+# EDITOR / IDE FILES
+# ===============================
+
+# VS Code
+.vscode/
+
+# PyCharm / JetBrains
+.idea/
+
+# ===============================
+# LOG FILES
+# ===============================
+
+*.log
+
+# ===============================
+# TEST COVERAGE (optional future)
+# ===============================
+
+htmlcov/
+.coverage
+.coverage.*

@@ -1,0 +1,51 @@
+{% extends "core/base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+  <div class="card">
+    {% if next and "/portal" in next %}
+      <h2>Admin Portal Login</h2>
+      <p class="small">Sign in to manage schedules and policy.</p>
+    {% else %}
+      <h2>Employee Login</h2>
+      <p class="small">Sign in to clock in and clock out.</p>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="msg error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="post" action="">
+      {% csrf_token %}
+
+      <div class="formgrid">
+        <div>
+          <label for="id_username">Username</label>
+          {{ form.username }}
+          {% for e in form.username.errors %}
+            <div class="small" style="color:#fca5a5;">{{ e }}</div>
+          {% endfor %}
+        </div>
+
+        <div>
+          <label for="id_password">Password</label>
+          {{ form.password }}
+          {% for e in form.password.errors %}
+            <div class="small" style="color:#fca5a5;">{{ e }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="span2">
+          <input type="hidden" name="next" value="{{ next }}" />
+          <button class="btn primary" type="submit">Login</button>
+
+          {% if next and "/portal" in next %}
+            <a class="link" href="{% url 'landing' %}">Back</a>
+          {% else %}
+            <a class="link" href="{% url 'landing' %}">Back</a>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}

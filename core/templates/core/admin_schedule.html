@@ -1,0 +1,141 @@
+{% extends "core/base.html" %}
+{% block title %}Schedule Admin{% endblock %}
+
+{% block content %}
+
+  <div class="card">
+    <h2>Policy</h2>
+    <p class="small">Control strict scheduling and grace windows.</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_policy" />
+
+      {% if policy_form.non_field_errors %}
+        <div class="msg error">{{ policy_form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="formgrid">
+        <div>
+          <label>Strict schedule enforced</label>
+          {{ policy_form.strict_schedule_enforced }}
+          {% for e in policy_form.strict_schedule_enforced.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label>Allow unscheduled clock in when not strict</label>
+          {{ policy_form.allow_unscheduled_clock_in_when_not_strict }}
+          {% for e in policy_form.allow_unscheduled_clock_in_when_not_strict.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label>Grace minutes before start</label>
+          {{ policy_form.grace_minutes_before_start }}
+          {% for e in policy_form.grace_minutes_before_start.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label>Grace minutes after start</label>
+          {{ policy_form.grace_minutes_after_start }}
+          {% for e in policy_form.grace_minutes_after_start.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn primary" type="submit">Save Policy</button>
+      </div>
+    </form>
+  </div>
+
+
+  <div class="card">
+    <h2>Schedule Admin</h2>
+    <p class="small">Create or update a shift for an employee on a specific date.</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_schedule" />
+
+      {% if schedule_form.non_field_errors %}
+        <div class="msg error">{{ schedule_form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="formgrid">
+        <div>
+          <label>Employee</label>
+          {{ schedule_form.employee }}
+          {% for e in schedule_form.employee.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label>Date</label>
+          {{ schedule_form.date }}
+          {% for e in schedule_form.date.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label>Start time</label>
+          {{ schedule_form.start_time }}
+          {% for e in schedule_form.start_time.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label>End time</label>
+          {{ schedule_form.end_time }}
+          {% for e in schedule_form.end_time.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label>Is canceled</label>
+          {{ schedule_form.is_canceled }}
+          {% for e in schedule_form.is_canceled.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="span2">
+          <label>Notes</label>
+          {{ schedule_form.notes }}
+          {% for e in schedule_form.notes.errors %}<div class="small" style="color:#fca5a5;">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn primary" type="submit">Save Schedule</button>
+        <a class="link" href="{% url 'admin_schedule' %}">Clear form</a>
+      </div>
+    </form>
+  </div>
+
+
+  <div class="card">
+    <h3>Upcoming schedules</h3>
+    <p class="small">Showing the next scheduled items.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Employee</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Canceled</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in upcoming %}
+          <tr>
+            <td>{{ s.date }}</td>
+            <td>{{ s.employee.username }}</td>
+            <td>{{ s.start_time }}</td>
+            <td>{{ s.end_time }}</td>
+            <td>{{ s.is_canceled }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">No upcoming schedules.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}
