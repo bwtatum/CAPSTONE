@@ -1,0 +1,13 @@
+{% extends "core/base.html" %}
+{% block title %}Access denied{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Access denied</h2>
+    <p class="small">You do not have permission to view this page.</p>
+    <div class="row">
+      <a class="btn primary" href="{% url 'landing' %}">Back to Home</a>
+      <a class="btn" href="/accounts/login/?next=/portal/">Admin Login</a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Timeclock</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      :root{
+        --bg:#0f172a;
+        --card:#111827;
+        --text:#e5e7eb;
+        --muted:#94a3b8;
+        --border:rgba(255,255,255,0.10);
+        --primary:#2563eb;
+        --primaryHover:#1d4ed8;
+        --shadow:0 10px 25px rgba(0,0,0,0.35);
+        --radius:16px;
+      }
+      *{ box-sizing:border-box; }
+      body{
+        margin:0;
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:
+          radial-gradient(1200px 500px at 20% -10%, rgba(37,99,235,0.35), transparent 50%),
+          radial-gradient(1000px 500px at 80% 0%, rgba(34,197,94,0.20), transparent 50%),
+          var(--bg);
+        color:var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        padding: 18px;
+      }
+      .card{
+        width: min(560px, 100%);
+        background: rgba(17,24,39,0.85);
+        border:1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 26px;
+        backdrop-filter: blur(10px);
+      }
+      h1{
+        margin:0 0 6px 0;
+        font-size: 28px;
+        letter-spacing: 0.2px;
+      }
+      p{
+        margin: 0 0 18px 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .btn{
+        width:100%;
+        appearance:none;
+        border:1px solid var(--border);
+        background: rgba(255,255,255,0.06);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 12px 14px;
+        cursor:pointer;
+        font-weight: 750;
+        transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
+        text-decoration:none;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+      }
+      .btn:hover{
+        background: rgba(255,255,255,0.10);
+        border-color: rgba(255,255,255,0.18);
+      }
+      .btn:active{ transform: translateY(1px); }
+      .btn.primary{
+        background: var(--primary);
+        border-color: rgba(255,255,255,0.15);
+      }
+      .btn.primary:hover{ background: var(--primaryHover); }
+      .stack{ display:flex; flex-direction:column; gap:12px; }
+      .small{ margin-top: 14px; font-size: 12px; color: var(--muted); }
+      .pill{
+        display:inline-block;
+        font-size: 12px;
+        color: var(--muted);
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        margin-bottom: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <div class="pill">Timeclock App</div>
+      <h1>Timeclock</h1>
+      <p>Employee clock in and clock out with scheduling rules. Admins manage schedules and policy controls.</p>
+
+      <div class="stack">
+        <a class="btn primary" href="/accounts/login/?next=/dashboard/">
+          Employee Login
+        </a>
+
+        <a class="btn" href="/accounts/login/?next=/portal/">
+          Admin Login
+        </a>
+      </div>
+
+      <div class="small">
+        Tip: Admin login requires a staff or superuser account.
+      </div>
+    </div>
+  </body>
+</html>
