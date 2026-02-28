@@ -1,0 +1,95 @@
+{% extends "core/base.html" %}
+{% block title %}Admin Timesheets{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Admin Timesheets</h2>
+    <p class="small">Filter and review employee shifts. Showing up to 200 most recent results.</p>
+
+    <form method="get" class="card" style="margin-top:12px;">
+      <div class="formgrid">
+        <div>
+          <label>Employee</label>
+          <select name="employee_id">
+            <option value="">All employees</option>
+            {% for e in employees %}
+              <option value="{{ e.id }}" {% if employee_id == e.id|stringformat:"s" %}selected{% endif %}>
+                {{ e.username }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label>Start date (YYYY-MM-DD)</label>
+          <input type="text" name="start" value="{{ start }}" placeholder="2026-02-01" />
+        </div>
+
+        <div>
+          <label>End date (YYYY-MM-DD)</label>
+          <input type="text" name="end" value="{{ end }}" placeholder="2026-02-28" />
+        </div>
+
+        <div style="display:flex; align-items:end; gap:10px;">
+          <button class="btn primary" type="submit">Apply Filters</button>
+          <a class="btn ghost" href="{% url 'admin_timesheets' %}">Clear</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Shifts</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Clock in</th>
+          <th>Clock out</th>
+          <th>Break</th>
+          <th>Total</th>
+          <th>Worked</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in shifts %}
+          <tr>
+            <td>{{ s.employee.username }}</td>
+            <td>{{ s.clock_in }}</td>
+            <td>{% if s.clock_out %}{{ s.clock_out }}{% else %}Open{% endif %}</td>
+
+            <td>
+              {% if s.clock_out %}
+                {{ s.breaks_hhmm }}
+              {% else %}
+                In progress
+              {% endif %}
+            </td>
+
+            <td>
+              {% if s.clock_out %}
+                {{ s.total_hhmm }}
+              {% else %}
+                In progress
+              {% endif %}
+            </td>
+
+            <td>
+              {% if s.clock_out %}
+                {{ s.worked_hhmm }}
+              {% else %}
+                In progress
+              {% endif %}
+            </td>
+
+            <td>{{ s.status }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7">No shifts found for current filters.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

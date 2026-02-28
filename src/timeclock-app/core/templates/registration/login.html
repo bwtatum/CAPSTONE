@@ -1,51 +1,37 @@
-{% extends "core/base.html" %}
-{% block title %}Login{% endblock %}
+{% extends "registration/base_auth.html" %}
 
-{% block content %}
-  <div class="card">
-    {% if next and "/portal" in next %}
-      <h2>Admin Portal Login</h2>
-      <p class="small">Sign in to manage schedules and policy.</p>
-    {% else %}
-      <h2>Employee Login</h2>
-      <p class="small">Sign in to clock in and clock out.</p>
-    {% endif %}
+{% block auth_heading %}Employee Login{% endblock %}
+{% block auth_subheading %}Sign in to clock in and clock out.{% endblock %}
 
-    {% if form.non_field_errors %}
-      <div class="msg error">{{ form.non_field_errors }}</div>
-    {% endif %}
+{% block auth_body %}
+  {% if form.errors %}
+    <div class="msg error">
+      Username or password was incorrect. Please try again.
+    </div>
+  {% endif %}
 
-    <form method="post" action="">
-      {% csrf_token %}
+  <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
 
-      <div class="formgrid">
-        <div>
-          <label for="id_username">Username</label>
-          {{ form.username }}
-          {% for e in form.username.errors %}
-            <div class="small" style="color:#fca5a5;">{{ e }}</div>
-          {% endfor %}
-        </div>
+    <div class="field">
+      <label for="id_username">Username</label>
+      <input class="input" id="id_username" name="username" type="text" autocomplete="username" required />
+    </div>
 
-        <div>
-          <label for="id_password">Password</label>
-          {{ form.password }}
-          {% for e in form.password.errors %}
-            <div class="small" style="color:#fca5a5;">{{ e }}</div>
-          {% endfor %}
-        </div>
+    <div class="field">
+      <label for="id_password">Password</label>
+      <input class="input" id="id_password" name="password" type="password" autocomplete="current-password" required />
+    </div>
 
-        <div class="span2">
-          <input type="hidden" name="next" value="{{ next }}" />
-          <button class="btn primary" type="submit">Login</button>
+    <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}" />
 
-          {% if next and "/portal" in next %}
-            <a class="link" href="{% url 'landing' %}">Back</a>
-          {% else %}
-            <a class="link" href="{% url 'landing' %}">Back</a>
-          {% endif %}
-        </div>
-      </div>
-    </form>
-  </div>
+    <div class="auth-actions">
+      <button class="btn primary" type="submit">Login</button>
+      <a class="btn ghost" href="{% url 'landing' %}">Back</a>
+    </div>
+
+    <div class="auth-footer">
+      Tip: use your employee test account (ex: <strong>employee1</strong>) to demo clock in/out.
+    </div>
+  </form>
 {% endblock %}

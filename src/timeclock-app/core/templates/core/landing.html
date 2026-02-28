@@ -1,116 +1,86 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Timeclock</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<html data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title>Timeclock</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-      :root{
-        --bg:#0f172a;
-        --card:#111827;
-        --text:#e5e7eb;
-        --muted:#94a3b8;
-        --border:rgba(255,255,255,0.10);
-        --primary:#2563eb;
-        --primaryHover:#1d4ed8;
-        --shadow:0 10px 25px rgba(0,0,0,0.35);
-        --radius:16px;
-      }
-      *{ box-sizing:border-box; }
-      body{
-        margin:0;
-        min-height:100vh;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        background:
-          radial-gradient(1200px 500px at 20% -10%, rgba(37,99,235,0.35), transparent 50%),
-          radial-gradient(1000px 500px at 80% 0%, rgba(34,197,94,0.20), transparent 50%),
-          var(--bg);
-        color:var(--text);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-        padding: 18px;
-      }
-      .card{
-        width: min(560px, 100%);
-        background: rgba(17,24,39,0.85);
-        border:1px solid var(--border);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 26px;
-        backdrop-filter: blur(10px);
-      }
-      h1{
-        margin:0 0 6px 0;
-        font-size: 28px;
-        letter-spacing: 0.2px;
-      }
-      p{
-        margin: 0 0 18px 0;
-        color: var(--muted);
-        line-height: 1.5;
-      }
-      .btn{
-        width:100%;
-        appearance:none;
-        border:1px solid var(--border);
-        background: rgba(255,255,255,0.06);
-        color: var(--text);
-        border-radius: 14px;
-        padding: 12px 14px;
-        cursor:pointer;
-        font-weight: 750;
-        transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
-        text-decoration:none;
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        gap:10px;
-      }
-      .btn:hover{
-        background: rgba(255,255,255,0.10);
-        border-color: rgba(255,255,255,0.18);
-      }
-      .btn:active{ transform: translateY(1px); }
-      .btn.primary{
-        background: var(--primary);
-        border-color: rgba(255,255,255,0.15);
-      }
-      .btn.primary:hover{ background: var(--primaryHover); }
-      .stack{ display:flex; flex-direction:column; gap:12px; }
-      .small{ margin-top: 14px; font-size: 12px; color: var(--muted); }
-      .pill{
-        display:inline-block;
-        font-size: 12px;
-        color: var(--muted);
-        padding: 6px 10px;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        margin-bottom: 12px;
-      }
-    </style>
-  </head>
+<script>
+(function(){
+  const stored=localStorage.getItem("theme");
+  if(stored){document.documentElement.setAttribute("data-theme",stored);}
+})();
+</script>
 
-  <body>
-    <div class="card">
-      <div class="pill">Timeclock App</div>
-      <h1>Timeclock</h1>
-      <p>Employee clock in and clock out with scheduling rules. Admins manage schedules and policy controls.</p>
+<style>
+:root{
+  --bg:#0f172a;
+  --card:rgba(17,24,39,0.9);
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --border:rgba(255,255,255,0.1);
+  --primary:#2563eb;
+}
+html[data-theme="light"]{
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#475569;
+  --border:rgba(15,23,42,0.12);
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:30px;
+  border-radius:16px;
+  text-align:center;
+}
+.btn{
+  display:block;
+  margin:12px 0;
+  padding:10px;
+  background:var(--primary);
+  color:white;
+  text-decoration:none;
+  border-radius:10px;
+}
+.toggle{
+  margin-top:10px;
+  font-size:12px;
+  cursor:pointer;
+  color:var(--muted);
+}
+</style>
+</head>
 
-      <div class="stack">
-        <a class="btn primary" href="/accounts/login/?next=/dashboard/">
-          Employee Login
-        </a>
+<body>
+  <div class="card">
+    <h1>Timeclock</h1>
+    <p>Employee clock in and clock out system.</p>
 
-        <a class="btn" href="/accounts/login/?next=/portal/">
-          Admin Login
-        </a>
-      </div>
+    <a class="btn" href="/accounts/login/?next=/dashboard/">Employee Login</a>
+    <a class="btn" href="/accounts/login/?next=/portal/">Admin Login</a>
 
-      <div class="small">
-        Tip: Admin login requires a staff or superuser account.
-      </div>
-    </div>
-  </body>
+    <div class="toggle" onclick="toggleTheme()">Toggle Theme</div>
+  </div>
+
+<script>
+function toggleTheme(){
+  const current=document.documentElement.getAttribute("data-theme")||"dark";
+  const next=current==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",next);
+  localStorage.setItem("theme",next);
+}
+</script>
+</body>
 </html>

@@ -204,5 +204,5 @@ Before deploying:
 
 ## 👨‍💻 Author
 
-CSC154 Capstone Project – Group 9  
+CSC154 Capstone Project – Group 8  
 Built with Django ❤️

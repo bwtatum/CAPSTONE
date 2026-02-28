@@ -1,0 +1,10 @@
+{% extends "registration/base_auth.html" %}
+{% block auth_heading %}Signed out{% endblock %}
+{% block auth_subheading %}You have been logged out successfully.{% endblock %}
+
+{% block auth_body %}
+  <div class="row">
+    <a class="btn primary" href="{% url 'login' %}">Login again</a>
+    <a class="btn ghost" href="{% url 'landing' %}">Home</a>
+  </div>
+{% endblock %}
