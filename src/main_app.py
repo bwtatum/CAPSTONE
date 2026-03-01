@@ -25,7 +25,6 @@ def main():
     print(now.strftime("%A, %B %d, %Y %I:%M:%S %p"))
     
     # Call time clock functions to clock in, clock out, and lunch break
-    # To Do:  Decide on lunch break functionality
     time_clock_menu(employee_id)
     
 

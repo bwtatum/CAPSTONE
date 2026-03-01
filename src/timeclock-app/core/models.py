@@ -100,6 +100,9 @@ class WorkShift(models.Model):
 
     clock_in = models.DateTimeField()
     clock_out = models.DateTimeField(null=True, blank=True)
+    
+    # Calculated and stored at clock out for timesheet export
+    total_time = models.DurationField(null=True, blank=True)
 
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
