@@ -99,16 +99,22 @@ def clock_out(employee):
     Status handling:
     - OPEN shifts become CLOSED
     - FLAGGED or EDITED status is not overridden
+    
+    Calculates:
+    - Total hours worked based on clock_in and clock_out
+    - Stores total hours in the WorkShift record for reporting purposes
     """
     shift = WorkShift.objects.filter(employee=employee, clock_out__isnull=True).first()
     if shift is None:
         return False, "No open shift to clock out from."
 
-    shift.clock_out = timezone.now()
+    now = timezone.now()
+    shift.clock_out = now
+    shift.total_time = now - shift.clock_in
 
     # Do not override flagged or edited shifts
     if shift.status == WorkShift.Status.OPEN:
         shift.status = WorkShift.Status.CLOSED
 
-    shift.save(update_fields=["clock_out", "status"])
+    shift.save(update_fields=["clock_out", "total_time", "status"])
     return True, "Clocked out successfully."
