@@ -23,4 +23,5 @@ urlpatterns = [
     # Admin portal
     path("portal/", views.portal_home, name="portal_home"),
     path("portal/schedule/", views.admin_schedule, name="admin_schedule"),
+     path("portal/download-timesheets/", views.download_timesheets, name="download_timesheets"),
 ]

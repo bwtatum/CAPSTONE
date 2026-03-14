@@ -13,12 +13,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.http import HttpResponse
 
 from . import services
 from .models import WorkShift, ScheduledShift, TimeclockPolicy
 from .permissions import portal_admin_required
 from .policy_forms import TimeclockPolicyForm
 from .schedule_forms import ScheduledShiftForm
+
 
 
 def landing(request):
@@ -158,3 +160,40 @@ def clock_out(request):
     else:
         messages.error(request, msg)
     return redirect("home")
+
+
+@login_required
+@portal_admin_required
+def download_timesheets(request):
+    """
+    Admin-only endpoint that returns a .txt file of all closed shifts
+    for every employee, grouped by employee and ordered by clock-in time.
+    """
+    shifts = WorkShift.objects.select_related("employee").exclude(
+        clock_out__isnull=True
+    ).order_by("employee__username", "clock_in")
+
+    lines = ["EMPLOYEE TIMESHEETS\n", "=" * 40 + "\n\n"]
+
+    current_employee = None
+    for shift in shifts:
+        emp_name = shift.employee.get_full_name() or shift.employee.username
+
+        if emp_name != current_employee:
+            if current_employee is not None:
+                lines.append("\n")
+            lines.append(f"Employee: {emp_name}\n")
+            lines.append("-" * 30 + "\n")
+            current_employee = emp_name
+
+        clock_in_str  = shift.clock_in.strftime("%Y-%m-%d %I:%M %p")
+        clock_out_str = shift.clock_out.strftime("%Y-%m-%d %I:%M %p")
+        total         = str(shift.total_time) if shift.total_time else "N/A"
+
+        lines.append(f"  Clock In:   {clock_in_str}\n")
+        lines.append(f"  Clock Out:  {clock_out_str}\n")
+        lines.append(f"  Total Time: {total}\n\n")
+
+    response = HttpResponse("".join(lines), content_type="text/plain")
+    response["Content-Disposition"] = 'attachment; filename="timesheets.txt"'
+    return response
