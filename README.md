@@ -70,7 +70,11 @@ The system was designed with extensibility and future enhancements in mind.
 .
 ├── docs/               # Project documentation
 ├── src/                # Application source code
-├── tests/              # Unit and integration tests
+    ├── timeclock-app/
+        ├── core/
+        ├── timeclock/            
+├── static
+├──tests/              # Unit and integration tests
 ├── .gitignore
 ├── README.md
 └── requirements.txt
