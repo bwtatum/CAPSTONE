@@ -98,6 +98,7 @@ source .venv/bin/activate   # Mac/Linux
 ### 3️⃣ Install dependencies
 
 ```
+pip install openpyxl (Needed for Mircosoft Excel openpyxl warnings, add locally before virtual environment too if needed)
 pip install -r requirements.txt
 ```
 

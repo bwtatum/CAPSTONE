@@ -21,6 +21,10 @@ from .permissions import portal_admin_required
 from .policy_forms import TimeclockPolicyForm
 from .schedule_forms import ScheduledShiftForm
 
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font
+
 
 
 def landing(request):
@@ -196,4 +200,54 @@ def download_timesheets(request):
 
     response = HttpResponse("".join(lines), content_type="text/plain")
     response["Content-Disposition"] = 'attachment; filename="timesheets.txt"'
+    return response
+
+
+@login_required
+@portal_admin_required
+def download_timesheets_excel(request):
+    """
+    Admin-only endpoint that returns an Excel file of all closed shifts
+    for every employee, grouped by employee and ordered by clock-in time.
+    """
+
+    shifts = WorkShift.objects.select_related("employee").exclude(
+        clock_out__isnull=True
+    ).order_by("employee__username", "clock_in")
+
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Timesheets"
+    headers = ["Employee Name", "Clock In", "Clock Out", "Total Time"]
+    ws.append(headers)
+
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+
+    for shift in shifts:
+        emp_name = shift.employee.get_full_name() or shift.employee.username
+        total = str(shift.total_time) if shift.total_time else "N/A"
+
+        ws.append([
+            emp_name,
+            shift.clock_in.strftime("%Y-%m-%d %I:%M %p"),
+            shift.clock_out.strftime("%Y-%m-%d %I:%M %p"),
+            total
+        ])
+
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[column_letter].width = max_length + 2
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="timesheets.xlsx"'
+
+    wb.save(response)
     return response
