@@ -21,7 +21,6 @@ from .permissions import portal_admin_required
 from .policy_forms import TimeclockPolicyForm
 from .schedule_forms import ScheduledShiftForm
 
-from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl.styles import Font
 
