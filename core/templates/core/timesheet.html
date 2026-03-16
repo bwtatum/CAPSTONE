@@ -2,57 +2,220 @@
 {% block title %}My Timesheet{% endblock %}
 
 {% block content %}
-  <div class="card">
-    <h2>My Timesheet</h2>
-    <p>Last 14 shifts</p>
+<style>
+/* Small, self-contained styles for a cleaner timesheet UI */
+.tc-card {
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 1.25rem auto;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  color: #e6eef7;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
 
-    <table>
-      <thead>
-        <tr>
-          <th>Clock in</th>
-          <th>Clock out</th>
-          <th>Break</th>
-          <th>Total</th>
-          <th>Worked</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in shifts %}
-          <tr>
-            <td>{{ s.clock_in }}</td>
-            <td>{% if s.clock_out %}{{ s.clock_out }}{% else %}Open{% endif %}</td>
+.tc-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:0.7rem;
+}
 
-            <td>
-              {% if s.clock_out %}
-                {{ s.breaks_hhmm }}
-              {% else %}
-                In progress
-              {% endif %}
-            </td>
+.tc-title {
+  margin:0;
+  font-size:1.35rem;
+  font-weight:600;
+  letter-spacing:0.2px;
+}
 
-            <td>
-              {% if s.clock_out %}
-                {{ s.total_hhmm }}
-              {% else %}
-                In progress
-              {% endif %}
-            </td>
+.tc-sub {
+  margin:0.15rem 0 0 0;
+  font-size:0.85rem;
+  color:#9fb0c9;
+}
 
-            <td>
-              {% if s.clock_out %}
-                {{ s.worked_hhmm }}
-              {% else %}
-                In progress
-              {% endif %}
-            </td>
+/* Controls */
+.tc-controls { display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; }
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  font-weight:600;
+  font-size:0.9rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+.btn:focus { outline: 2px solid rgba(255,255,255,0.06); }
+.btn-primary {
+  background: linear-gradient(180deg,#2b90ff,#1471e6);
+  color: white;
+}
+.btn-primary:hover { filter:brightness(1.05); transform:translateY(-1px); }
+.btn-secondary {
+  background: rgba(255,255,255,0.03);
+  color: #cfe6ff;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.btn-ghost {
+  background: transparent;
+  color: #a8c3de;
+  padding: 0.35rem 0.5rem;
+}
 
-            <td>{{ s.status }}</td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="6">No shifts yet.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+/* Date inputs */
+.tc-controls input[type="date"] {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #dbeeff;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  font-size:0.9rem;
+}
+
+/* Table */
+.tc-table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:0.6rem;
+}
+.tc-table thead th {
+  text-align:left;
+  padding:0.6rem 0.5rem;
+  color:#bcd7f9;
+  font-weight:600;
+  font-size:0.9rem;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.tc-table tbody td {
+  padding:0.6rem 0.5rem;
+  color:#e7f3ff;
+  font-size:0.9rem;
+  vertical-align:top;
+  border-bottom:1px solid rgba(255,255,255,0.02);
+}
+.tc-empty {
+  text-align:center;
+  color:#97adca;
+  padding:1rem 0;
+}
+
+/* Responsive */
+@media (max-width:760px){
+  .tc-header { flex-direction:column; align-items:flex-start; gap:0.6rem; }
+  .tc-controls { width:100%; gap:0.4rem; }
+  .tc-controls form { width:100%; display:flex; gap:0.4rem; flex-wrap:wrap; }
+  .tc-controls input[type="date"] { width:140px; }
+}
+</style>
+
+<div class="tc-card">
+  <div class="tc-header">
+    <div>
+      <h2 class="tc-title">My Timesheet</h2>
+      <p class="tc-sub">Last 14 shifts</p>
+    </div>
+
+    <div class="tc-controls" role="region" aria-label="Export controls">
+      <!-- quick export -->
+      <a class="btn btn-primary" href="{% url 'export_timesheet' %}" title="Download all shifts">
+        Download CSV
+      </a>
+
+      <!-- filtered export -->
+      <form method="get" action="{% url 'export_timesheet' %}" style="display:inline-flex; gap:0.5rem; align-items:center;">
+        <label for="start" style="font-size:0.85rem; color:#9fb0c9;">Start</label>
+        <input id="start" name="start" type="date" aria-label="Start date" />
+
+        <label for="end" style="font-size:0.85rem; color:#9fb0c9;">End</label>
+        <input id="end" name="end" type="date" aria-label="End date" />
+
+        <button type="submit" class="btn btn-secondary" title="Download filtered date range">Download (filtered)</button>
+      </form>
+
+      <!-- small hint -->
+      <button class="btn btn-ghost" type="button" onclick="clearDates()" title="Clear dates">Clear</button>
+    </div>
   </div>
+
+  <table class="tc-table" role="table" aria-label="Recent shifts">
+    <thead>
+      <tr>
+        <th>Clock in</th>
+        <th>Clock out</th>
+        <th>Break</th>
+        <th>Total</th>
+        <th>Worked</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in shifts %}
+        <tr>
+          <td>{{ s.clock_in }}</td>
+          <td>{% if s.clock_out %}{{ s.clock_out }}{% else %}<span style="color:#ffd7d7;">Open</span>{% endif %}</td>
+
+          <td>
+            {% if s.clock_out %}
+              {{ s.breaks_hhmm }}
+            {% else %}
+              In progress
+            {% endif %}
+          </td>
+
+          <td>
+            {% if s.clock_out %}
+              {{ s.total_hhmm }}
+            {% else %}
+              In progress
+            {% endif %}
+          </td>
+
+          <td>
+            {% if s.clock_out %}
+              {{ s.worked_hhmm }}
+            {% else %}
+              In progress
+            {% endif %}
+          </td>
+
+          <td>{{ s.status }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="tc-empty">No shifts yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+/* Prefill date inputs with last 7 days for convenience */
+(function(){
+  const startEl = document.getElementById('start');
+  const endEl = document.getElementById('end');
+  if(!startEl || !endEl) return;
+
+  // if user didn't already pass values from server, set defaults
+  if(!startEl.value && !endEl.value){
+    const today = new Date();
+    const prior = new Date();
+    prior.setDate(today.getDate() - 7);
+
+    function toIsoInput(d){
+      // YYYY-MM-DD
+      return d.toISOString().slice(0,10);
+    }
+    startEl.value = toIsoInput(prior);
+    endEl.value = toIsoInput(today);
+  }
+})();
+
+function clearDates(){
+  const s = document.getElementById('start');
+  const e = document.getElementById('end');
+  if(s) s.value = '';
+  if(e) e.value = '';
+}
+</script>
 {% endblock %}
