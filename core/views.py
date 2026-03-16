@@ -10,18 +10,28 @@ This keeps:
 """
 
 from datetime import date
+import csv
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.http import HttpResponse
 
 from . import services
 from .models import WorkShift, ScheduledShift, TimeclockPolicy
 from .permissions import portal_admin_required
 from .policy_forms import TimeclockPolicyForm
 from .schedule_forms import ScheduledShiftForm
+
+# Import exporter helpers
+from .exports import (
+    export_workshifts_csv_bytes,
+    _seconds_between as _exp_seconds_between,
+    _seconds_from_breaks as _exp_seconds_from_breaks,
+    _format_hhmm as _exp_format_hhmm,
+)
 
 
 def landing(request):
@@ -93,12 +103,36 @@ def admin_schedule(request):
 
 @login_required
 def timesheet(request):
+    """
+    Employee view of recent shifts.
+
+    Attaches helper attrs used by template:
+      - breaks_hhmm
+      - total_hhmm
+      - worked_hhmm
+      - total_hours (numeric, optional)
+      - worked_hours (numeric, optional)
+    """
     shifts = (
         WorkShift.objects
         .filter(employee=request.user)
         .prefetch_related("meal_breaks")
         .order_by("-clock_in")[:14]
     )
+
+    for s in shifts:
+        total_seconds = _exp_seconds_between(s.clock_in, s.clock_out)
+        break_seconds = _exp_seconds_from_breaks(s)
+        worked_seconds = max(0, total_seconds - break_seconds)
+
+        s.breaks_hhmm = _exp_format_hhmm(break_seconds)
+        s.total_hhmm = _exp_format_hhmm(total_seconds)
+        s.worked_hhmm = _exp_format_hhmm(worked_seconds)
+
+        # numeric hours as helpers (optional)
+        s.total_hours = round(total_seconds / 3600.0, 3)
+        s.worked_hours = round(worked_seconds / 3600.0, 3)
+
     return render(request, "core/timesheet.html", {"shifts": shifts})
 
 
@@ -233,3 +267,41 @@ def admin_timesheets(request):
             "end": end_str,
         },
     )
+
+
+@login_required
+def export_timesheet(request):
+    """
+    Export the logged-in user's timesheet as a CSV.
+    Optional GET params:
+      - start=YYYY-MM-DD
+      - end=YYYY-MM-DD
+    Produces human-friendly datetime formatting and the same columns as the UI:
+      Clock in, Clock out, Break, Total, Worked, Status
+    """
+    start = request.GET.get("start", "").strip()
+    end = request.GET.get("end", "").strip()
+
+    def parse_iso_date(s):
+        try:
+            return date.fromisoformat(s)
+        except Exception:
+            return None
+
+    start_date = parse_iso_date(start) if start else None
+    end_date = parse_iso_date(end) if end else None
+
+    csv_bytes = export_workshifts_csv_bytes(
+        employee=request.user, start_date=start_date, end_date=end_date, max_rows=5000
+    )
+
+    filename_parts = ["timesheet", request.user.username]
+    if start_date:
+        filename_parts.append(start_date.isoformat())
+    if end_date:
+        filename_parts.append(end_date.isoformat())
+    filename = "_".join(filename_parts) + ".csv"
+
+    response = HttpResponse(csv_bytes, content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response

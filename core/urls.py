@@ -19,6 +19,7 @@ urlpatterns = [
     # Employee dashboard and actions
     path("dashboard/", views.home, name="home"),
     path("timesheet/", views.timesheet, name="timesheet"),
+    path("timesheet/export/", views.export_timesheet, name="export_timesheet"),  # NEW
     path("clock-in/", views.clock_in, name="clock_in"),
     path("clock-out/", views.clock_out, name="clock_out"),
     path("meal-break/", views.meal_break_toggle, name="meal_break"),
