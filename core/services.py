@@ -8,13 +8,14 @@ Responsibilities:
 - Enforce schedule policy for clock in
 - Apply grace window logic when configured
 - Create WorkShift records using server side timestamps
+- Manage meal breaks tied to a WorkShift
 - Close WorkShift records and update status appropriately
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils import timezone
 
-from .models import TimeclockPolicy, ScheduledShift, WorkShift
+from .models import TimeclockPolicy, ScheduledShift, WorkShift, MealBreak
 
 
 def get_open_shift(employee):
@@ -24,6 +25,16 @@ def get_open_shift(employee):
     A shift is open when clock_out is null.
     """
     return WorkShift.objects.filter(employee=employee, clock_out__isnull=True).first()
+
+
+def get_open_break(shift):
+    """
+    Returns the current open meal break for a shift or None.
+    A break is open when end_time is null.
+    """
+    if shift is None:
+        return None
+    return shift.meal_breaks.filter(end_time__isnull=True).first()
 
 
 def clock_in(employee):
@@ -41,7 +52,6 @@ def clock_in(employee):
     """
     policy = TimeclockPolicy.get_solo()
 
-    # Prevent double clock in while already on shift
     if WorkShift.objects.filter(employee=employee, clock_out__isnull=True).exists():
         return False, "You already have an open shift."
 
@@ -55,24 +65,20 @@ def clock_in(employee):
     ).first()
 
     if policy.strict_schedule_enforced:
-        # In strict mode, a schedule is required
         if scheduled is None:
             return False, "No scheduled shift today. Clock in not allowed."
 
-        # Grace window enforcement is optional and based on configured minutes
         start_dt = timezone.make_aware(datetime.combine(today, scheduled.start_time))
-        early_ok = start_dt - timezone.timedelta(minutes=policy.grace_minutes_before_start)
-        late_ok = start_dt + timezone.timedelta(minutes=policy.grace_minutes_after_start)
+        early_ok = start_dt - timedelta(minutes=policy.grace_minutes_before_start)
+        late_ok = start_dt + timedelta(minutes=policy.grace_minutes_after_start)
 
         if policy.grace_minutes_before_start or policy.grace_minutes_after_start:
             if not (early_ok <= now <= late_ok):
                 return False, "Clock in outside allowed time window."
     else:
-        # Non strict mode can still block unscheduled clock in based on policy
         if scheduled is None and not policy.allow_unscheduled_clock_in_when_not_strict:
             return False, "Unscheduled clock in not allowed by policy."
 
-    # Always record server side timestamps for auditability
     shift = WorkShift.objects.create(
         employee=employee,
         scheduled_shift=scheduled,
@@ -80,7 +86,6 @@ def clock_in(employee):
         status=WorkShift.Status.OPEN,
     )
 
-    # If no schedule exists, flag the shift for admin review
     if scheduled is None:
         shift.status = WorkShift.Status.FLAGGED
         shift.save(update_fields=["status"])
@@ -89,12 +94,69 @@ def clock_in(employee):
     return True, "Clocked in successfully."
 
 
+def start_meal_break(employee):
+    """
+    Starts a meal break for the employee's current open shift.
+
+    Enforces:
+    - Employee must have an open shift
+    - Only one open break at a time per shift
+    """
+    shift = get_open_shift(employee)
+    if shift is None:
+        return False, "You must clock in before starting a meal break."
+
+    if get_open_break(shift) is not None:
+        return False, "Meal break already active."
+
+    MealBreak.objects.create(
+        shift=shift,
+        start_time=timezone.now(),
+    )
+
+    return True, "Meal break started."
+
+
+def end_meal_break(employee):
+    """
+    Ends the active meal break for the employee's current open shift.
+
+    Enforces:
+    - Employee must have an open shift
+    - Must have an active break to end
+
+    Rule:
+    - If break is under 30 minutes, flag the shift for admin review
+    """
+    shift = get_open_shift(employee)
+    if shift is None:
+        return False, "No open shift."
+
+    brk = get_open_break(shift)
+    if brk is None:
+        return False, "No active meal break."
+
+    brk.end_time = timezone.now()
+    brk.save(update_fields=["end_time"])
+
+    duration_seconds = int((brk.end_time - brk.start_time).total_seconds())
+    min_seconds = 30 * 60
+
+    if duration_seconds < min_seconds:
+        shift.status = WorkShift.Status.FLAGGED
+        shift.save(update_fields=["status"])
+        return True, "Meal break ended. Break was under 30 minutes so the shift was flagged."
+
+    return True, "Meal break ended."
+
+
 def clock_out(employee):
     """
     Clocks an employee out of their open shift.
 
     Enforces:
-    - Must have an open shift to clock out
+    - Must have an open shift to clock out from
+    - Cannot clock out while a meal break is active
 
     Status handling:
     - OPEN shifts become CLOSED
@@ -104,9 +166,11 @@ def clock_out(employee):
     if shift is None:
         return False, "No open shift to clock out from."
 
+    if get_open_break(shift) is not None:
+        return False, "End your meal break before clocking out."
+
     shift.clock_out = timezone.now()
 
-    # Do not override flagged or edited shifts
     if shift.status == WorkShift.Status.OPEN:
         shift.status = WorkShift.Status.CLOSED
 

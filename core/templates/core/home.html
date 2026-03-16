@@ -8,6 +8,10 @@
     {% if current_shift %}
       <p><strong>Status:</strong> Clocked in</p>
       <p><strong>Clock in:</strong> {{ current_shift.clock_in }}</p>
+
+      {% if break_active %}
+        <p><strong>Meal break:</strong> In progress <span id="breakTimer"></span></p>
+      {% endif %}
     {% else %}
       <p><strong>Status:</strong> Not clocked in</p>
     {% endif %}
@@ -15,13 +19,62 @@
     <div class="row">
       <form method="post" action="{% url 'clock_in' %}">
         {% csrf_token %}
-        <button class="btn primary" type="submit">Clock In</button>
+        <button class="btn primary" type="submit" {% if current_shift %}disabled{% endif %}>
+          Clock In
+        </button>
       </form>
 
       <form method="post" action="{% url 'clock_out' %}">
         {% csrf_token %}
-        <button class="btn" type="submit">Clock Out</button>
+        <button class="btn ghost" type="submit" {% if not current_shift %}disabled{% endif %}>
+          Clock Out
+        </button>
       </form>
+
+      {% if current_shift %}
+        <form method="post" action="{% url 'meal_break' %}">
+          {% csrf_token %}
+          <button class="btn" type="submit">
+            {% if break_active %}
+              End Meal Break
+            {% else %}
+              Start Meal Break
+            {% endif %}
+          </button>
+        </form>
+      {% endif %}
     </div>
+
+    {% if break_active %}
+      <script>
+        (function () {
+          const startIso = "{{ break_start_iso|escapejs }}";
+          if (!startIso) return;
+
+          const start = new Date(startIso);
+          const el = document.getElementById("breakTimer");
+          if (!el) return;
+
+          function pad(n) { return String(n).padStart(2, "0"); }
+
+          function tick() {
+            const now = new Date();
+            const seconds = Math.max(0, Math.floor((now - start) / 1000));
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+
+            if (h > 0) {
+              el.textContent = `(${h}:${pad(m)}:${pad(s)})`;
+            } else {
+              el.textContent = `(${m}:${pad(s)})`;
+            }
+          }
+
+          tick();
+          setInterval(tick, 1000);
+        })();
+      </script>
+    {% endif %}
   </div>
 {% endblock %}

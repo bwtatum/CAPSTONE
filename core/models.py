@@ -5,11 +5,14 @@ This module defines the database schema for:
 - TimeclockPolicy: singleton settings controlling scheduling and admin edit rules
 - ScheduledShift: planned shift created by portal admins
 - WorkShift: actual clock in and clock out records created by employees
+- MealBreak: meal break records tied to a WorkShift
 - ShiftEditLog: audit trail for administrative edits to WorkShift timestamps
 
 High level design:
 Views should remain thin and delegate business rules to the service layer.
 """
+
+from datetime import timedelta
 
 from django.conf import settings
 from django.db import models
@@ -62,7 +65,6 @@ class ScheduledShift(models.Model):
     notes = models.CharField(max_length=255, blank=True)
 
     class Meta:
-        # One schedule per employee per day
         constraints = [
             models.UniqueConstraint(
                 fields=["employee", "date"],
@@ -90,7 +92,6 @@ class WorkShift(models.Model):
 
     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    # Optional association to planned schedule for traceability
     scheduled_shift = models.ForeignKey(
         ScheduledShift,
         null=True,
@@ -104,7 +105,6 @@ class WorkShift(models.Model):
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Admin edit metadata
     edited_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -115,13 +115,89 @@ class WorkShift(models.Model):
     edit_reason = models.CharField(max_length=255, blank=True)
 
     def is_open(self) -> bool:
-        """
-        Returns True if the shift is active and not yet clocked out.
-        """
         return self.clock_out is None
+
+    def total_seconds(self) -> int:
+        """
+        Total shift duration in seconds (clock_out - clock_in).
+        Returns 0 if shift is still open.
+        """
+        if not self.clock_out:
+            return 0
+        return int((self.clock_out - self.clock_in).total_seconds())
+
+    def break_seconds(self) -> int:
+        """
+        Total meal break seconds for this shift.
+        Only counts breaks that have an end_time.
+        """
+        total = 0
+        for b in self.meal_breaks.all():
+            if b.end_time:
+                total += int((b.end_time - b.start_time).total_seconds())
+        return total
+
+    def worked_seconds(self) -> int:
+        """
+        Payable worked seconds = total_seconds - break_seconds.
+        """
+        total = self.total_seconds()
+        if total <= 0:
+            return 0
+        return max(0, total - self.break_seconds())
+
+    def fmt_hhmm(self, seconds: int) -> str:
+        """
+        Format seconds as H:MM.
+        """
+        td = timedelta(seconds=int(seconds))
+        total_minutes = int(td.total_seconds() // 60)
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        return f"{hours}:{minutes:02d}"
+
+    def total_hhmm(self) -> str:
+        return self.fmt_hhmm(self.total_seconds())
+
+    def breaks_hhmm(self) -> str:
+        return self.fmt_hhmm(self.break_seconds())
+
+    def worked_hhmm(self) -> str:
+        return self.fmt_hhmm(self.worked_seconds())
 
     def __str__(self) -> str:
         return f"{self.employee} {self.clock_in} to {self.clock_out or 'OPEN'}"
+
+
+class MealBreak(models.Model):
+    """
+    Meal break tied to a WorkShift.
+
+    A break is open when end_time is null.
+    Only one open break should exist per shift.
+    """
+
+    shift = models.ForeignKey(
+        WorkShift,
+        on_delete=models.CASCADE,
+        related_name="meal_breaks",
+    )
+
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_open(self) -> bool:
+        return self.end_time is None
+
+    def duration_seconds(self) -> int:
+        if not self.end_time:
+            return 0
+        return int((self.end_time - self.start_time).total_seconds())
+
+    def __str__(self) -> str:
+        return f"Meal break {self.shift_id} {self.start_time} to {self.end_time or 'OPEN'}"
 
 
 class ShiftEditLog(models.Model):

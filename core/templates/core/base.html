@@ -1,238 +1,303 @@
 {% load group_tags %}
 
 <!doctype html>
-<html>
+<html data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <title>{% block title %}Timeclock{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Theme bootstrap -->
+    <script>
+      (function () {
+        function getStoredTheme() {
+          try { return localStorage.getItem("theme"); } catch (e) { return null; }
+        }
+
+        function setTheme(theme) {
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+
+        var stored = getStoredTheme();
+        if (stored === "dark" || stored === "light") {
+          setTheme(stored);
+          return;
+        }
+
+        var prefersDark = false;
+        try {
+          prefersDark = window.matchMedia &&
+                        window.matchMedia("(prefers-color-scheme: dark)").matches;
+        } catch (e) {}
+
+        setTheme(prefersDark ? "dark" : "light");
+      })();
+    </script>
+
     <style>
       :root{
-        --bg: #0f172a;
-        --card: #111827;
-        --muted: #94a3b8;
-        --text: #e5e7eb;
-        --border: rgba(255,255,255,0.10);
-        --primary: #2563eb;
-        --primaryHover: #1d4ed8;
-        --danger: #ef4444;
-        --success: #22c55e;
-        --shadow: 0 10px 25px rgba(0,0,0,0.35);
-        --radius: 14px;
+        --radius:14px;
+        --shadow:0 10px 30px rgba(0,0,0,0.35);
+
+        --bg:#0f172a;
+        --card:rgba(17,24,39,0.9);
+        --text:#e5e7eb;
+        --muted:#94a3b8;
+        --border:rgba(255,255,255,0.10);
+
+        --primary:#2563eb;
+        --primaryHover:#1d4ed8;
+        --primarySoft:rgba(37,99,235,0.15);
+
+        --bgGrad1:rgba(37,99,235,0.35);
+        --bgGrad2:rgba(34,197,94,0.20);
       }
 
-      * { box-sizing: border-box; }
+      html[data-theme="light"]{
+        --bg:#f6f7fb;
+        --card:#ffffff;
+        --text:#0f172a;
+        --muted:#475569;
+        --border:rgba(15,23,42,0.12);
+        --shadow:0 8px 20px rgba(2,6,23,0.10);
+
+        --primary:#2563eb;
+        --primaryHover:#1d4ed8;
+        --primarySoft:rgba(37,99,235,0.10);
+
+        --bgGrad1:rgba(37,99,235,0.15);
+        --bgGrad2:rgba(34,197,94,0.12);
+      }
+
+      *{ box-sizing:border-box; }
+
       body{
-        margin: 0;
-        background: radial-gradient(1200px 500px at 20% -10%, rgba(37,99,235,0.35), transparent 50%),
-                    radial-gradient(1000px 500px at 80% 0%, rgba(34,197,94,0.20), transparent 50%),
-                    var(--bg);
-        color: var(--text);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        margin:0;
+        background:
+          radial-gradient(1200px 500px at 20% -10%, var(--bgGrad1), transparent 50%),
+          radial-gradient(1000px 500px at 80% 0%, var(--bgGrad2), transparent 50%),
+          var(--bg);
+        color:var(--text);
+        font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        transition: background 0.25s ease, color 0.25s ease;
       }
 
       .container{
-        max-width: 960px;
-        margin: 28px auto;
-        padding: 0 14px;
+        max-width:1000px;
+        margin:30px auto;
+        padding:0 16px;
       }
 
       .card{
-        background: rgba(17,24,39,0.85);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 18px;
-        margin: 14px 0;
-        backdrop-filter: blur(10px);
+        background:var(--card);
+        border:1px solid var(--border);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        padding:18px;
+        margin:14px 0;
+        transition: background 0.25s ease, box-shadow 0.25s ease;
       }
 
       .topbar{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
       }
 
       .brand{
-        font-size: 18px;
-        font-weight: 750;
-        letter-spacing: 0.2px;
-      }
-
-      .userpill{
-        font-size: 12px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        color: var(--muted);
+        font-weight:800;
+        font-size:18px;
+        letter-spacing:0.2px;
       }
 
       .navlinks{
-        margin-top: 12px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
-      a.link{
-        color: var(--text);
-        text-decoration: none;
-        font-size: 13px;
-        padding: 8px 10px;
-        border-radius: 10px;
-        border: 1px solid transparent;
-      }
-
-      a.link:hover{
-        border-color: var(--border);
-        background: rgba(255,255,255,0.04);
-      }
-
-      .btn{
-        appearance: none;
-        border: 1px solid var(--border);
-        background: rgba(255,255,255,0.06);
-        color: var(--text);
-        border-radius: 12px;
-        padding: 10px 14px;
-        cursor: pointer;
-        font-weight: 650;
-        transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
-      }
-
-      .btn:hover{
-        background: rgba(255,255,255,0.10);
-        border-color: rgba(255,255,255,0.18);
-      }
-
-      .btn:active{
-        transform: translateY(1px);
-      }
-
-      .btn.primary{
-        background: var(--primary);
-        border-color: rgba(255,255,255,0.15);
-      }
-
-      .btn.primary:hover{
-        background: var(--primaryHover);
-      }
-
-      .btn.ghost{
-        background: transparent;
-      }
-
-      .btn.linklike{
-        background: transparent;
-        border: 1px solid transparent;
-        padding: 8px 10px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 650;
-      }
-
-      .btn.linklike:hover{
-        border-color: var(--border);
-        background: rgba(255,255,255,0.04);
-      }
-
-      .msg{
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 10px 12px;
-        margin: 10px 0;
-        font-size: 13px;
-      }
-
-      .msg.success{
-        border-color: rgba(34,197,94,0.40);
-        background: rgba(34,197,94,0.12);
-      }
-
-      .msg.error{
-        border-color: rgba(239,68,68,0.40);
-        background: rgba(239,68,68,0.12);
-      }
-
-      h1,h2,h3{
-        margin: 0 0 10px 0;
-      }
-
-      h2{
-        font-size: 20px;
-      }
-
-      p{
-        margin: 8px 0;
-        color: var(--muted);
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-top:10px;
+        flex-wrap:wrap;
       }
 
       .row{
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 12px;
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:12px;
       }
 
-      table{
-        width: 100%;
-        border-collapse: collapse;
-        border-radius: 12px;
-        overflow: hidden;
+      /* LINKS */
+      a.link{
+        text-decoration:none;
+        color:var(--text);
+        font-size:13px;
+        padding:6px 10px;
+        border-radius:10px;
+        transition: background 0.15s ease;
       }
 
-      th, td{
-        text-align: left;
-        padding: 10px 12px;
-        border-bottom: 1px solid var(--border);
-        font-size: 13px;
+      a.link:hover{
+        background:rgba(255,255,255,0.08);
       }
 
-      th{
-        color: var(--muted);
-        font-weight: 750;
-        background: rgba(255,255,255,0.04);
+      html[data-theme="light"] a.link:hover{
+        background:#e2e8f0;
       }
 
-      tr:hover td{
-        background: rgba(255,255,255,0.03);
+      /* BUTTONS */
+      button.btn,
+      input.btn,
+      a.btn{
+        -webkit-appearance:none;
+        appearance:none;
+        border:1px solid var(--border);
+        background:rgba(255,255,255,0.05);
+        color:var(--text) !important;
+        border-radius:12px;
+        padding:9px 14px;
+        cursor:pointer;
+        font-weight:700;
+        line-height:1.1;
+        text-decoration:none;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        transition:
+          background 0.15s ease,
+          border-color 0.15s ease,
+          transform 0.05s ease,
+          box-shadow 0.15s ease;
       }
 
-      input, select, textarea{
-        width: 100%;
-        padding: 9px 10px;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-        background: rgba(0,0,0,0.20);
-        color: var(--text);
-        outline: none;
+      html[data-theme="light"] button.btn,
+      html[data-theme="light"] input.btn,
+      html[data-theme="light"] a.btn{
+        background:#f1f5f9;
+        border-color:#cbd5e1;
+        color:var(--text) !important;
       }
 
-      label{
-        color: var(--muted);
-        font-size: 12px;
+      button.btn:hover,
+      input.btn:hover,
+      a.btn:hover{
+        background:rgba(255,255,255,0.12);
+        border-color:rgba(255,255,255,0.20);
       }
 
-      .formgrid{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+      html[data-theme="light"] button.btn:hover,
+      html[data-theme="light"] input.btn:hover,
+      html[data-theme="light"] a.btn:hover{
+        background:#e2e8f0;
+        border-color:#94a3b8;
       }
 
-      .span2{ grid-column: span 2; }
-
-      @media (max-width: 720px){
-        .formgrid{ grid-template-columns: 1fr; }
-        .span2{ grid-column: span 1; }
+      button.btn:active,
+      input.btn:active,
+      a.btn:active{
+        transform: translateY(1px);
       }
 
-      .small{
-        font-size: 12px;
-        color: var(--muted);
+      button.btn:focus,
+      input.btn:focus,
+      a.btn:focus{
+        outline:none;
+        box-shadow:0 0 0 3px rgba(37,99,235,0.25);
       }
+
+      button.btn:disabled,
+      input.btn:disabled{
+        cursor:not-allowed;
+        box-shadow:none;
+        transform:none;
+        opacity:1;
+      }
+
+      html[data-theme="light"] button.btn:disabled,
+      html[data-theme="light"] input.btn:disabled{
+        background:#e5e7eb;
+        border-color:#cbd5e1;
+        color:#64748b !important;
+      }
+
+      html[data-theme="dark"] button.btn:disabled,
+      html[data-theme="dark"] input.btn:disabled{
+        background:#1f2937;
+        border-color:#374151;
+        color:#9ca3af !important;
+      }
+
+      /* PRIMARY */
+      button.btn.primary,
+      input.btn.primary,
+      a.btn.primary{
+        background:linear-gradient(135deg, #2563eb, #1d4ed8);
+        color:#ffffff !important;
+        border:none;
+        box-shadow:0 6px 16px rgba(37,99,235,0.35);
+      }
+
+      button.btn.primary:hover,
+      input.btn.primary:hover,
+      a.btn.primary:hover{
+        box-shadow:0 8px 18px rgba(37,99,235,0.45);
+      }
+
+      html[data-theme="light"] button.btn.primary:disabled,
+      html[data-theme="light"] input.btn.primary:disabled{
+        background:linear-gradient(135deg, #93c5fd, #60a5fa);
+        color:#ffffff !important;
+      }
+
+      html[data-theme="dark"] button.btn.primary:disabled,
+      html[data-theme="dark"] input.btn.primary:disabled{
+        background:linear-gradient(135deg, #1e40af, #1d4ed8);
+        color:#cbd5e1 !important;
+      }
+
+      /* GHOST */
+      button.btn.ghost,
+      input.btn.ghost,
+      a.btn.ghost{
+        background:transparent;
+        color:var(--text) !important;
+      }
+
+      html[data-theme="light"] button.btn.ghost,
+      html[data-theme="light"] input.btn.ghost,
+      html[data-theme="light"] a.btn.ghost{
+        background:#ffffff;
+      }
+
+      button.btn.ghost:hover,
+      input.btn.ghost:hover,
+      a.btn.ghost:hover{
+        background:var(--primarySoft);
+        border-color:var(--primary);
+      }
+
+      /* MESSAGES */
+      .msg{
+        padding:10px;
+        border-radius:10px;
+        margin:8px 0;
+        font-size:13px;
+        border:1px solid var(--border);
+      }
+
+      .success{
+        background:rgba(34,197,94,0.15);
+        border-color:rgba(34,197,94,0.35);
+      }
+
+      .error{
+        background:rgba(239,68,68,0.15);
+        border-color:rgba(239,68,68,0.35);
+      }
+
+      /* TABLE */
+      table{ width:100%; border-collapse:collapse; }
+      th,td{ padding:10px; border-bottom:1px solid var(--border); font-size:13px; }
+      th{ color:var(--muted); text-align:left; font-weight:800; }
     </style>
   </head>
 
@@ -241,35 +306,52 @@
       <nav class="card">
         <div class="topbar">
           <div class="brand">Timeclock</div>
-          <div class="userpill">{{ request.user.username }}</div>
+          <button id="themeToggle" class="btn ghost" type="button">Toggle Theme</button>
         </div>
 
         <div class="navlinks">
-          <a class="link" href="{% url 'home' %}">Dashboard</a>
-          <a class="link" href="{% url 'timesheet' %}">My Timesheet</a>
+          {% if request.user.is_authenticated %}
+            <a class="link" href="{% url 'home' %}">Dashboard</a>
+            <a class="link" href="{% url 'timesheet' %}">My Timesheet</a>
 
-          {% if request.user|in_group:"Admin" %}
-            <a class="link" href="{% url 'portal_home' %}">Admin Portal</a>
+            {% if request.user|in_group:"Admin" %}
+              <a class="link" href="{% url 'portal_home' %}">Admin Portal</a>
+            {% endif %}
+
+            <!-- Logout button -->
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn ghost">Logout</button>
+            </form>
+
+          {% else %}
+            <a class="link" href="{% url 'landing' %}">Home</a>
+            <a class="link" href="{% url 'login' %}">Login</a>
           {% endif %}
-
-
-
-          <form method="post" action="/accounts/logout/" style="display:inline;">
-            {% csrf_token %}
-            <button class="btn linklike" type="submit">Logout</button>
-          </form>
         </div>
       </nav>
 
       {% if messages %}
         {% for message in messages %}
-          <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">
-            {{ message }}
-          </div>
+          <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
       {% endif %}
 
       {% block content %}{% endblock %}
     </div>
+
+    <script>
+      (function(){
+        const btn = document.getElementById("themeToggle");
+        if (!btn) return;
+
+        btn.addEventListener("click", function(){
+          const current = document.documentElement.getAttribute("data-theme") || "dark";
+          const next = current === "dark" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", next);
+          try { localStorage.setItem("theme", next); } catch (e) {}
+        });
+      })();
+    </script>
   </body>
 </html>
