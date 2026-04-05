@@ -1,76 +1,115 @@
-# 🚀 CSC289 Capstone Project
+# ⏱️ TimeClock App (Capstone Project)
 
-> **Course:** CSC289 – Capstone  
-> **Institution:** Wake Technical Community College  
-> **Term:** Spring 2026  
-> **Team:** *Team 9*
+A full-stack Django application for managing employee time tracking,
+scheduling, and administrative oversight.
 
----
+------------------------------------------------------------------------
 
-## 📌 Project Overview
+## 🚀 Features
 
-This repository contains the source code, documentation, and supporting materials for our **CSC289 Capstone Group Project**.
+### 👷 Employee
 
-The goal of this project is to design, build, and deliver a complete, real-world application that demonstrates the technical, analytical, and collaborative skills developed throughout the Computer Science curriculum.
+-   Clock in / clock out
+-   View personal timesheet
+-   Mobile-friendly interface (tablet-ready)
 
-Our project emphasizes:
-- Practical problem solving
-- Clean, maintainable code
-- Realistic system design
-- Team collaboration and version control best practices
+### 🧑‍💼 Admin
 
----
+-   Manage employee schedules
+-   Configure scheduling policies
+-   View all timesheets
+-   Export timesheets to CSV
+-   Role-based dashboard
 
-## 🎯 Problem Statement
+------------------------------------------------------------------------
 
-Many real-world systems suffer from inefficiencies, lack of automation, or poor data visibility.  
-This project addresses those challenges by providing a solution that is:
+## ⚙️ Tech Stack
 
-- Efficient
-- Scalable
-- User-friendly
-- Backed by data and sound engineering principles
+-   Python 3
+-   Django
+-   SQLite (default)
+-   HTML / CSS (custom UI)
+-   JavaScript (light enhancements)
 
----
+------------------------------------------------------------------------
 
-## 🧠 Solution Summary
+## 🧠 Key Concepts Implemented
 
-Our application provides:
+-   Role-based access control (Admin vs Employee)
+-   Dynamic dashboards based on user role
+-   Form handling with Django ModelForms
+-   Clean UI with reusable layout components
+-   CSV export functionality
+-   Native browser date/time inputs
 
-- A structured backend for managing data and logic
-- A user-friendly interface for interaction and visualization
-- Automated workflows to reduce manual effort
-- Clear separation of concerns between components
+------------------------------------------------------------------------
 
-The system was designed with extensibility and future enhancements in mind.
+## 📂 Project Structure
 
----
+src/timeclock-app/ ├── core/ │ ├── models.py │ ├── views.py │ ├──
+forms.py │ ├── schedule_forms.py │ ├── templates/ │ │ ├── core/ │ │ └──
+registration/ │ └── static/
 
-## 🛠️ Tech Stack
+------------------------------------------------------------------------
 
-**Languages & Frameworks**
-- Python
-- Django
-- HTML, CSS, JavaScript
+## ▶️ Running the App
 
-**Data & Storage**
-- SQLite (development)
-- PostgreSQL (production-ready)
+# Activate virtual environment
 
-**Tools & Platforms**
-- Git & GitHub
-- Docker (optional deployment)
-- VS Code
+..venv`\Scripts`{=tex}`\activate`{=tex}
 
----
+# Run migrations
 
-## 🗂️ Project Structure
+python manage.py migrate
 
-```text
-.
-├── docs/               # Project documentation
-├── src/                # Application source code
-├── tests/              # Unit and integration tests
-├── .gitignore
-├── README.md
-└── requirements.txt
+# Start server
+
+python manage.py runserver
+
+Then visit: http://127.0.0.1:8000
+
+------------------------------------------------------------------------
+
+## 🔐 Test Accounts
+
+-   employee1 → standard employee
+-   admin → admin user (must be in Admin group)
+
+------------------------------------------------------------------------
+
+## 📊 Export Feature
+
+Admins can export all timesheet data to CSV from the View Timesheets
+page.
+
+------------------------------------------------------------------------
+
+## 🎯 Project Purpose
+
+This application demonstrates: - Real-world workforce management
+workflows - Clean separation of roles and permissions - Practical UI/UX
+design for internal tools
+
+------------------------------------------------------------------------
+
+## 👨‍💻 Author
+
+Brandon Tatum\
+Wake Tech Community College --- Capstone Project
+
+------------------------------------------------------------------------
+
+## 💡 Future Improvements
+
+-   Inline schedule editing
+-   Dashboard analytics (hours, trends)
+-   API integration
+-   Authentication enhancements
+
+------------------------------------------------------------------------
+
+## 🏁 Status
+
+✅ Feature complete\
+✅ Demo ready\
+🚀 Actively polished
