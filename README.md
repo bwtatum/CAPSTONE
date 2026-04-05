@@ -1,208 +1,252 @@
+# ⏱️ TimeClock App
 
-# ⏱️ TimeClock Application
+## Overview
 
-A web-based employee time tracking system built with **Django**.
+The **TimeClock App** is a Django-based employee time tracking system designed to manage real-world shift operations with structured data models, enforced policies, and auditability.
 
----
-
-## 🚀 Project Overview
-
-The **TimeClock** application allows employees to:
-
-- 🟢 Clock in  
-- 🔴 Clock out  
-- 📄 View recent shifts  
-
-Administrators can:
-
-- 📅 Create and manage scheduled shifts  
-- ⚙️ Configure scheduling policies  
-- ✏️ Edit shift records with audit logging  
-- 👥 Manage users via Django Admin  
-
-This project follows a **layered architecture** where business logic is separated from views using a dedicated service layer.
+It supports clock-in/clock-out workflows, meal breaks, scheduled shifts, and administrative controls, all backed by a tested and validated backend.
 
 ---
 
-## 🏗️ Architecture Overview
+## 🚀 Core Features
 
-```
-Browser
-   ↓
-Django Views
-   ↓
-Service Layer (services.py)
-   ↓
-Models
-   ↓
-SQLite Database
-```
+### 👤 Employee Functionality
 
-### 🧠 Design Principles
+* Clock in and out
+* Start and end meal breaks
+* Track worked time vs break time
+* Associate worked shifts with scheduled shifts
 
-- Thin views  
-- Business logic centralized in `services.py`  
-- Policy-driven behavior  
-- Audit logging for admin edits  
-- Role-based access control  
+### 🛠️ Admin Functionality
+
+* Create and manage scheduled shifts
+* Enforce scheduling policies
+* Edit shifts with audit logging
+* Track changes via `ShiftEditLog`
+* Export timesheet data (CSV)
 
 ---
 
-## 📂 File Structure
+## 🧠 Data Model
 
-```
+The system is built around structured, production-style models:
+
+* **WorkShift** → Actual worked shift (clock in/out)
+* **ScheduledShift** → Planned shift created by admins
+* **MealBreak** → Breaks tied to a WorkShift
+* **TimeclockPolicy** → Global behavior rules (singleton)
+* **ShiftEditLog** → Audit trail for admin edits
+
+This separation allows clean business logic, auditability, and future scalability.
+
+---
+
+## 🏗️ Tech Stack
+
+* **Backend:** Django
+* **Database:** SQLite (default)
+* **Deployment:** Raspberry Pi (Gunicorn-ready)
+* **Timezone Handling:** Enabled (UTC-aware)
+
+---
+
+## 📁 Project Structure
+
+```id="projstruct"
 timeclock/
-│
 ├── manage.py
-│
-├── timeclock/                # Project configuration
-│   ├── settings.py           # Global configuration
-│   ├── urls.py               # Root URL routing
-│   ├── wsgi.py               # WSGI entrypoint (Gunicorn)
-│   ├── asgi.py               # ASGI entrypoint
-│
-├── core/                     # Main application
-│   ├── models.py             # 🗄️ Database models
-│   ├── services.py           # 🧩 Business logic layer
-│   ├── views.py              # 🌐 Request handling
-│   ├── forms.py              # 📝 Admin validation forms
-│   ├── policy_forms.py       # ⚙️ Policy configuration form
-│   ├── schedule_forms.py     # 📅 Scheduled shift form
-│   ├── permissions.py        # 🔐 Portal access decorator
-│   ├── admin.py              # 🛠️ Django admin configuration
-│   ├── urls.py               # 🔀 App routes
-│   ├── tests.py              # 🧪 Unit tests
-│
-└── db.sqlite3                # 💾 Development database
+├── db.sqlite3
+├── core/                  # Main Django app
+│   ├── models.py
+│   ├── views.py
+│   ├── tests.py
+│   └── scripts/
+├── timeclock/             # Project config (settings, urls)
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## 🛠️ How to Run Locally
+## ⚙️ Setup
 
-### 1️⃣ Clone the repository
+```bash id="setup1"
+git clone https://github.com/bwtatum/CAPSTONE.git
+cd CAPSTONE
+git checkout timeClock-v0.2_T
 
-```
-git clone <repo-url>
-cd timeclock
-```
+python3 -m venv .venv
+source .venv/bin/activate   # or activate.fish
 
-### 2️⃣ Create virtual environment
-
-```
-python -m venv .venv
-source .venv/bin/activate   # Mac/Linux
-.venv\Scripts\activate    # Windows
-```
-
-### 3️⃣ Install dependencies
-
-```
 pip install -r requirements.txt
-```
-
-### 4️⃣ Run migrations
-
-```
 python manage.py migrate
-```
-
-### 5️⃣ Create superuser
-
-```
 python manage.py createsuperuser
-```
-
-### 6️⃣ Run development server
-
-```
 python manage.py runserver
 ```
 
-Open your browser:
+---
 
-```
-http://127.0.0.1:8000/
+# ⚡ Data Injection & Test Script
+
+## Purpose
+
+To eliminate repetitive manual testing and rapidly generate realistic datasets, a custom script was created.
+
+This script:
+
+* Seeds the database with users and shifts
+* Simulates realistic work patterns
+* Runs validation checks automatically
+
+---
+
+## 📍 Location
+
+```id="injectloc"
+core/scripts/inject_and_test_data.py
 ```
 
 ---
 
-## 👤 How the Application Works
+## ▶️ Run the Script
 
-### 🟢 Employee Flow
-
-1. Login at `/accounts/login/`
-2. Access dashboard at `/dashboard/`
-3. Clock in or clock out
-4. View recent shifts at `/timesheet/`
-
-### 👨‍💼 Admin Flow
-
-Admins must belong to the **Admin** group.
-
-Admin features:
-
-- `/portal/` → Admin dashboard  
-- `/portal/schedule/` → Schedule + policy management  
-- `/admin/` → Full Django admin site  
-
----
-
-## ⚙️ Policy System
-
-The `TimeclockPolicy` model controls:
-
-- ⏰ Strict schedule enforcement  
-- 🕒 Grace window for early/late clock-in  
-- 🚫 Whether unscheduled clock-ins are allowed  
-- ✍️ Whether admin edits require a reason  
-
-Only **one policy record** exists (singleton pattern).
-
----
-
-## 🧪 Testing
-
-Run unit tests with:
-
+```bash id="runshell"
+python manage.py shell
 ```
+
+```python id="runinject"
+exec(open('core/scripts/inject_and_test_data.py').read())
+```
+
+---
+
+## 🧠 What It Does
+
+### 🔹 Data Injection
+
+* Creates test users (`test_user_*`)
+* Generates multi-day WorkShift records
+* Simulates MealBreaks
+* Produces realistic time distributions
+
+### 🔹 Built-in Validation
+
+* Confirms users exist
+* Confirms shifts are created
+* Validates break durations
+* Verifies shift integrity
+
+---
+
+## ⚠️ Notes
+
+* Intended for development use only
+* Writes directly to the database
+* Reset with:
+
+```bash id="flush"
+python manage.py flush
+```
+
+---
+
+# 🧪 Automated Test Suite
+
+The project includes a structured Django test suite to validate core functionality.
+
+---
+
+## ▶️ Run Tests
+
+```bash id="runtests"
 python manage.py test
 ```
 
-Tests cover:
+---
 
-- Strict vs non-strict scheduling  
-- Grace window logic  
-- Double clock-in prevention  
-- Clock-out validation  
-- Portal admin permission enforcement  
+## ✅ Current Coverage
+
+Tests validate:
+
+* WorkShift creation
+* Shift duration calculations
+* MealBreak duration integrity
+* Aggregated break time (`break_seconds`)
 
 ---
 
-## 🔒 Production Notes
+## 🧠 Example Test Logic
 
-Before deploying:
+```python id="testexample"
+shift = WorkShift.objects.create(
+    employee=user,
+    clock_in=timezone.now(),
+    clock_out=timezone.now() + timedelta(hours=8),
+)
 
-- Set `DEBUG = False`  
-- Configure `ALLOWED_HOSTS`  
-- Move `SECRET_KEY` to environment variable  
-- Use Gunicorn or similar WSGI server  
-- Consider PostgreSQL for production database  
+MealBreak.objects.create(
+    shift=shift,
+    start_time=shift.clock_in + timedelta(hours=4),
+    end_time=shift.clock_in + timedelta(hours=4, minutes=30),
+)
 
----
-
-## 🔮 Future Improvements
-
-- ⏳ Overtime calculation  
-- ☕ Break tracking system  
-- 📊 Reporting dashboard  
-- 📤 CSV export for payroll  
-- 🎛️ Role-based UI refinement  
-- 🌍 API endpoints  
+assert shift.break_seconds() > 0
+```
 
 ---
 
-## 👨‍💻 Author
+## 🧬 Why Tests Matter
 
-CSC154 Capstone Project – Group 8  
-Built with Django ❤️
+* Prevent regressions during development
+* Validate business logic automatically
+* Ensure data integrity across features
+* Provide confidence for future changes
+
+---
+
+# 🔧 Configuration Notes
+
+### Timezone Support
+
+* Enabled via Django (`USE_TZ = True`)
+* All datetime usage is timezone-aware (`timezone.now()`)
+
+### Default Primary Key
+
+```python id="pkfix"
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+```
+
+---
+
+# 🚀 Future Improvements
+
+* Convert injection script into a Django management command
+* Expand test coverage for:
+
+  * Schedule enforcement
+  * Policy behavior
+  * Admin edit audit logs
+* Add CI pipeline for automated testing on push
+* Introduce API endpoints for frontend/mobile integration
+
+---
+
+# 👷 Contributors
+
+* Brandon Tatum
+* Capstone Project Team
+
+---
+
+# 🧾 Final Notes
+
+If something breaks:
+
+* Verify virtual environment is active
+* Ensure migrations are applied
+* Re-run tests to validate system state
+
+---
+
+This project represents a fully functional, tested backend system designed with real-world constraints in mind.
