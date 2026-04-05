@@ -56,9 +56,7 @@ registration/ │ └── static/
 
 # Activate virtual environment
 
-..venv`\Scripts`{=tex}`\activate`{=tex}
-
-# Run migrations
+.\.venv\Scripts\activate
 
 python manage.py migrate
 
