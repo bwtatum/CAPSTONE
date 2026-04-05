@@ -232,13 +232,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ---
 
-# 👷 Contributors
-
-* Brandon Tatum
-* Capstone Project Team
-
----
-
 # 🧾 Final Notes
 
 If something breaks:
