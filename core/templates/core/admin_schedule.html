@@ -1,0 +1,140 @@
+{% extends "core/base.html" %}
+{% block title %}Schedule Admin{% endblock %}
+
+{% block content %}
+
+<!-- POLICY -->
+<div class="card">
+  <h2>⚙️ Policy Settings</h2>
+  <p class="small">Scheduling rules and grace periods.</p>
+  <hr style="border:none; border-top:1px solid var(--border); margin:10px 0 14px 0;">
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save_policy" />
+
+    {% if policy_form.non_field_errors %}
+      <div class="msg error">{{ policy_form.non_field_errors }}</div>
+    {% endif %}
+
+  <div class="policy-clean">
+
+    <div class="policy-row">
+      <label>
+        {{ policy_form.strict_schedule_enforced }}
+        <span>Strict schedule enforced</span>
+      </label>
+    </div>
+
+    <div class="policy-row">
+      <label>
+        {{ policy_form.allow_unscheduled_clock_in_when_not_strict }}
+        <span>Allow unscheduled clock-in</span>
+      </label>
+    </div>
+
+    <div class="policy-row">
+      <div>
+        <label>Grace before (min)</label>
+        {{ policy_form.grace_minutes_before_start }}
+      </div>
+
+      <div>
+        <label>Grace after (min)</label>
+        {{ policy_form.grace_minutes_after_start }}
+      </div>
+    </div>
+
+  </div>
+
+
+<!-- SCHEDULE -->
+<div class="card">
+  <h2>📅 Schedule Management</h2>
+  <p class="small">Create or update a shift.</p>
+  <hr style="border:none; border-top:1px solid var(--border); margin:10px 0 14px 0;">
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save_schedule" />
+
+    {% if schedule_form.non_field_errors %}
+      <div class="msg error">{{ schedule_form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="formgrid">
+
+      <div>
+        <label>Employee</label>
+        {{ schedule_form.employee }}
+      </div>
+
+      <div>
+        <label>Date</label>
+        {{ schedule_form.date }}
+      </div>
+
+      <div>
+        <label>Start</label>
+        {{ schedule_form.start_time }}
+      </div>
+
+      <div>
+        <label>End</label>
+        {{ schedule_form.end_time }}
+      </div>
+
+      <div class="form-inline">
+        {{ schedule_form.is_canceled }}
+        <label>Canceled</label>
+      </div>
+
+      <div>
+        <label>Notes</label>
+        {{ schedule_form.notes }}
+      </div>
+
+    </div>
+
+    <div class="row">
+      <button class="btn primary" type="submit">Save Schedule</button>
+      <a class="link" href="{% url 'admin_schedule' %}">Clear</a>
+    </div>
+  </form>
+</div>
+
+
+<!-- UPCOMING -->
+<div class="card">
+  <h3>📊 Upcoming Schedules</h3>
+  <p class="small">Next scheduled items.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Employee</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Canceled</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in upcoming %}
+        <tr>
+          <td>{{ s.date }}</td>
+          <td>{{ s.employee.username }}</td>
+          <td>{{ s.start_time }}</td>
+          <td>{{ s.end_time }}</td>
+          <td>{{ s.is_canceled }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">No upcoming schedules.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

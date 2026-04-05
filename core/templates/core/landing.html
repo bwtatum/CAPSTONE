@@ -1,0 +1,134 @@
+<!doctype html>
+<html data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title>Timeclock</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>
+function toggleTheme(){
+  const current=document.documentElement.getAttribute("data-theme")||"dark";
+  const next=current==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",next);
+  localStorage.setItem("theme",next);
+  updateThemeButton();
+}
+
+function updateThemeButton(){
+  const btn=document.getElementById("themeToggle");
+  const current=document.documentElement.getAttribute("data-theme");
+
+  if(current==="dark"){
+    btn.innerHTML="🌙 Dark Mode";
+  } else {
+    btn.innerHTML="☀️ Light Mode";
+  }
+}
+
+// run on load
+updateThemeButton();
+</script>
+
+<style>
+:root{
+  --bg:#0f172a;
+  --card:rgba(17,24,39,0.9);
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --border:rgba(255,255,255,0.1);
+  --primary:#2563eb;
+}
+html[data-theme="light"]{
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#475569;
+  --border:rgba(15,23,42,0.12);
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:30px;
+  border-radius:16px;
+  text-align:center;
+}
+.btn{
+  display:block;
+  margin:12px 0;
+  padding:10px;
+  background:var(--primary);
+  color:white;
+  text-decoration:none;
+  border-radius:10px;
+}
+.toggle{
+  margin-top:18px;
+  padding:10px 16px;          /* bigger tap target */
+  font-size:13px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  transition:all 0.2s ease;
+
+  min-height:40px;            /* mobile tap size */
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.toggle:hover{
+  background:rgba(255,255,255,0.05);
+  color:var(--text);
+}
+
+.toggle:active{
+  transform:scale(0.96);      /* tap feedback */
+}
+.card p{
+  margin-bottom:20px;
+}
+html[data-theme="light"] .toggle:hover{
+  background:rgba(0,0,0,0.05);
+}
+</style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Timeclock</h1>
+    <p>Employee clock in and clock out system.</p>
+
+    <a class="btn" href="/accounts/login/?next=/dashboard/">Employee Login</a>
+    <a class="btn" href="/accounts/login/?next=/portal/">Admin Login</a>
+
+    <button class="toggle" onclick="toggleTheme()" id="themeToggle">
+     🌙 Dark Mode
+    </button>
+  </div>
+
+<script>
+function updateThemeButton(){
+  const btn = document.getElementById("themeToggle");
+  const current = document.documentElement.getAttribute("data-theme");
+
+  if(current === "dark"){
+    btn.innerHTML = "☀️ Light Mode";
+  } else {
+    btn.innerHTML = "🌙 Dark Mode";
+  }
+}
+</script>
+</body>
+</html>
