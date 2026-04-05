@@ -6,10 +6,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
-(function(){
-  const stored=localStorage.getItem("theme");
-  if(stored){document.documentElement.setAttribute("data-theme",stored);}
-})();
+function toggleTheme(){
+  const current=document.documentElement.getAttribute("data-theme")||"dark";
+  const next=current==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",next);
+  localStorage.setItem("theme",next);
+  updateThemeButton();
+}
+
+function updateThemeButton(){
+  const btn=document.getElementById("themeToggle");
+  const current=document.documentElement.getAttribute("data-theme");
+
+  if(current==="dark"){
+    btn.innerHTML="🌙 Dark Mode";
+  } else {
+    btn.innerHTML="☀️ Light Mode";
+  }
+}
+
+// run on load
+updateThemeButton();
 </script>
 
 <style>
@@ -55,10 +72,35 @@ body{
   border-radius:10px;
 }
 .toggle{
-  margin-top:10px;
-  font-size:12px;
-  cursor:pointer;
+  margin-top:18px;
+  padding:10px 16px;          /* bigger tap target */
+  font-size:13px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:transparent;
   color:var(--muted);
+  cursor:pointer;
+  transition:all 0.2s ease;
+
+  min-height:40px;            /* mobile tap size */
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.toggle:hover{
+  background:rgba(255,255,255,0.05);
+  color:var(--text);
+}
+
+.toggle:active{
+  transform:scale(0.96);      /* tap feedback */
+}
+.card p{
+  margin-bottom:20px;
+}
+html[data-theme="light"] .toggle:hover{
+  background:rgba(0,0,0,0.05);
 }
 </style>
 </head>
@@ -71,15 +113,21 @@ body{
     <a class="btn" href="/accounts/login/?next=/dashboard/">Employee Login</a>
     <a class="btn" href="/accounts/login/?next=/portal/">Admin Login</a>
 
-    <div class="toggle" onclick="toggleTheme()">Toggle Theme</div>
+    <button class="toggle" onclick="toggleTheme()" id="themeToggle">
+     🌙 Dark Mode
+    </button>
   </div>
 
 <script>
-function toggleTheme(){
-  const current=document.documentElement.getAttribute("data-theme")||"dark";
-  const next=current==="dark"?"light":"dark";
-  document.documentElement.setAttribute("data-theme",next);
-  localStorage.setItem("theme",next);
+function updateThemeButton(){
+  const btn = document.getElementById("themeToggle");
+  const current = document.documentElement.getAttribute("data-theme");
+
+  if(current === "dark"){
+    btn.innerHTML = "☀️ Light Mode";
+  } else {
+    btn.innerHTML = "🌙 Dark Mode";
+  }
 }
 </script>
 </body>

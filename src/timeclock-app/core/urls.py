@@ -27,4 +27,5 @@ urlpatterns = [
     path("portal/", views.portal_home, name="portal_home"),
     path("portal/schedule/", views.admin_schedule, name="admin_schedule"),
     path("portal/timesheets/", views.admin_timesheets, name="admin_timesheets"),
+    path("export/timesheets/", views.export_timesheets_csv, name="export_timesheets"),
 ]

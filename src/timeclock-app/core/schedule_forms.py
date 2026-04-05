@@ -29,8 +29,7 @@ class ScheduledShiftForm(forms.ModelForm):
         widgets = {
             # Use native browser date and time pickers
             "date": forms.DateInput(attrs={"type": "date"}),
-            # step 900 seconds equals 15 minute increments
-            "start_time": forms.TimeInput(attrs={"type": "time", "step": "900"}),
-            "end_time": forms.TimeInput(attrs={"type": "time", "step": "900"}),
+            "start_time": forms.TimeInput(attrs={"type": "time", "step": "60"}),
+            "end_time": forms.TimeInput(attrs={"type": "time", "step": "60"}),
             "notes": forms.TextInput(attrs={"placeholder": "Optional notes"}),
         }

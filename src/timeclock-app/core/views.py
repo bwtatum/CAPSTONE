@@ -23,6 +23,31 @@ from .permissions import portal_admin_required
 from .policy_forms import TimeclockPolicyForm
 from .schedule_forms import ScheduledShiftForm
 
+import csv
+from django.http import HttpResponse
+
+@login_required
+def export_timesheets_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="timesheets.csv"'
+
+    writer = csv.writer(response)
+    
+    # Header
+    writer.writerow(["Employee", "Date", "Start", "End", "Canceled"])
+
+    shifts = ScheduledShift.objects.all().order_by("-date")
+
+    for s in shifts:
+        writer.writerow([
+            s.employee.username,
+            s.date,
+            s.start_time,
+            s.end_time,
+            s.is_canceled
+        ])
+
+    return response
 
 def landing(request):
     return render(request, "core/landing.html")
