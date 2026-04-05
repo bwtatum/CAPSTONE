@@ -46,9 +46,16 @@ scheduling, and administrative oversight.
 
 ## 📂 Project Structure
 
-src/timeclock-app/ ├── core/ │ ├── models.py │ ├── views.py │ ├──
-forms.py │ ├── schedule_forms.py │ ├── templates/ │ │ ├── core/ │ │ └──
-registration/ │ └── static/
+src/timeclock-app/
+├── core/
+│ ├── models.py
+│ ├── views.py
+│ ├── forms.py
+│ ├── schedule_forms.py
+│ ├── templates/
+│ │ ├── core/
+│ │ └── registration/
+│ └── static/
 
 ------------------------------------------------------------------------
 
