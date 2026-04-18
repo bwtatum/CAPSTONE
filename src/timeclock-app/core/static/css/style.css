@@ -1,0 +1,250 @@
+/* ---------- COLORS ---------- */
+
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+
+  --primary:#2563eb;
+  --primary-hover:#1d4ed8;
+
+  --success:#22c55e;
+  --danger:#ef4444;
+}
+
+/* ---------- GLOBAL ---------- */
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  text-align:center;
+}
+
+/* ---------- LAYOUT ---------- */
+
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:40px 20px;
+}
+
+/* ---------- CARDS ---------- */
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:28px;
+  margin-bottom:20px;
+
+  box-shadow:
+  0 1px 2px rgba(0,0,0,0.04),
+  0 8px 24px rgba(0,0,0,0.04);
+}
+
+/* ---------- NAVBAR ---------- */
+
+.brand{
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:12px;
+  letter-spacing:.2px;
+}
+
+.navlinks{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+/* ---------- LINKS ---------- */
+
+.link{
+  text-decoration:none;
+  color:var(--text);
+  padding:6px 10px;
+  border-radius:6px;
+}
+
+.link:hover{
+  background:#f1f5f9;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn{
+  border:1px solid var(--border);
+  background:white;
+  padding:9px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:500;
+
+  transition:all .15s ease;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+}
+
+.btn.primary{
+  background:var(--primary);
+  color:white;
+  border:none;
+}
+
+.btn.primary:hover{
+  background:var(--primary-hover);
+}
+
+/* ---------- FORMS ---------- */
+
+form{
+  margin:0;
+}
+
+.logout-form{
+  display:inline-block;
+}
+
+.logout-form button{
+  margin-top:0;
+}
+
+/* login form spacing */
+
+form p{
+  margin-bottom:12px;
+}
+
+button,
+input[type="submit"]{
+  margin-top:15px;
+}
+
+/* inputs */
+
+input,select,textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-top:6px;
+
+  transition:border .15s ease, box-shadow .15s ease;
+}
+
+input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(37,99,235,.12);
+}
+
+/* labels */
+
+label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* ---------- TABLES ---------- */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+}
+
+th{
+  color:var(--muted);
+  text-align:left;
+}
+
+/* ---------- MESSAGES ---------- */
+
+.msg{
+  border:1px solid var(--border);
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:10px;
+}
+
+.msg.success{
+  background:#ecfdf5;
+  border-color:#bbf7d0;
+}
+
+.msg.error{
+  background:#fef2f2;
+  border-color:#fecaca;
+}
+
+/* ---------- FLEX ROW ---------- */
+
+.row{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:15px;
+}
+
+/* ---------- SMALL TEXT ---------- */
+
+.small{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:10px;
+}
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width:700px){
+
+  .row{
+    flex-direction:column;
+  }
+
+}
+
+/* ---------- DARK MODE THEME ---------- */
+html[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: rgba(17,24,39,0.9);
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --border: rgba(255,255,255,0.10);
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+/* Ensure body respects the theme transition */
+body {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.card {
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}

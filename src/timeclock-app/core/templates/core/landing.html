@@ -1,0 +1,16 @@
+{% extends "core/base.html" %}
+
+{% block title %}Welcome to Timeclock{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; padding: 50px 20px;">
+  <h1 style="margin-top: 0;">Welcome to Timeclock</h1>
+  <p style="color: var(--muted); margin-bottom: 30px;">Please select your login type below to access your schedule and timesheets.</p>
+  
+  <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+    <a class="btn primary" href="{% url 'login' %}">Employee Login</a>
+    
+    <a class="btn ghost" href="{% url 'login' %}?next={% url 'portal_home' %}">Admin Login</a>
+  </div>
+</div>
+{% endblock %}
