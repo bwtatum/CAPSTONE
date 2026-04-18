@@ -1,0 +1,50 @@
+{% extends "registration/base_auth.html" %}
+
+{% block auth_heading %}
+  {% if request.GET.next == "/portal/" %}
+    Admin Login
+  {% else %}
+    Employee Login
+  {% endif %}
+{% endblock %}
+
+{% block auth_subheading %}
+  {% if request.GET.next == "/portal/" %}
+    Sign in to access the admin portal.
+  {% else %}
+    Sign in to clock in and clock out.
+  {% endif %}
+{% endblock %}
+
+{% block auth_body %}
+  {% if form.errors %}
+    <div class="msg error">
+      Username or password was incorrect. Please try again.
+    </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+
+    <div class="field">
+      <label for="id_username">Username</label>
+      <input class="input" id="id_username" name="username" type="text" autocomplete="username" required />
+    </div>
+
+    <div class="field">
+      <label for="id_password">Password</label>
+      <input class="input" id="id_password" name="password" type="password" autocomplete="current-password" required />
+    </div>
+
+    <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}" />
+
+    <div class="auth-actions">
+      <button class="btn primary" type="submit">Login</button>
+      <a class="btn ghost" href="{% url 'landing' %}">Back</a>
+    </div>
+
+    <div class="auth-footer">
+      Tip: use your employee test account (ex: <strong>employee1</strong>) to demo clock in/out.
+    </div>
+  </form>
+{% endblock %}
