@@ -4,6 +4,7 @@
 <!doctype html>
 <html data-theme="dark">
   <head>
+    
     <meta charset="utf-8" />
     <title>{% block title %}Timeclock{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,30 +46,31 @@
             <span style="font-size: 1.2em; margin-right: 5px;">⏰</span> Timeclock
           </div>
           <button id="themeToggle" class="btn ghost" type="button">Toggle Theme</button>
+          <form method="post" action="{% url 'logout' %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn ghost">Logout</button>
+            </form>
         </div>
 
         <div class="navlinks">
           {% if request.user.is_authenticated %}
             {% if request.user|in_group:"Admin" %}
-              <a class="link" href="{% url 'portal_home' %}">Dashboard</a>
+              <a class="btn ghost" type="button" href="{% url 'portal_home' %}">Dashboard</a>
             {% else %}
-              <a class="link" href="{% url 'home' %}">Dashboard</a>
+              <a class="btn ghost" type="button" href="{% url 'home' %}">Dashboard</a>
             {% endif %}
-            <a class="link" href="{% url 'timesheet' %}">My Timesheet</a>
+            <a class="btn ghost" type="button" href="{% url 'timesheet' %}">My Timesheet</a>
               {% if request.user|in_group:"Admin" %}
-                <a class="link" href="{% url 'home' %}">Work</a>
+                <a class="btn ghost" type="button" href="{% url 'home' %}">Work</a>
               {% endif %}
 
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn ghost">Logout</button>
-            </form>
-
+            
           {% else %}
-            <a class="link" href="{% url 'landing' %}">Home</a>
-            <a class="link" href="{% url 'login' %}">Login</a>
+            <a class="btn ghost" type="button" href="{% url 'landing' %}">Home</a>
+            <a class="btn ghost" type="button" href="{% url 'login' %}">Login</a>
           {% endif %}
         </div>
+        
       </nav>
 
       {% if messages %}

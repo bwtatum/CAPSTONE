@@ -13,6 +13,8 @@
   --success:#22c55e;
   --danger:#ef4444;
 }
+a {color:var(--text)}
+a:visited {color:var(--text)}
 
 /* ---------- GLOBAL ---------- */
 
@@ -23,7 +25,6 @@
 body{
   margin:0;
   min-height:100vh;
-  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
   color:var(--text);
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   text-align:center;
@@ -85,14 +86,14 @@ body{
 /* ---------- BUTTONS ---------- */
 .btn{
   border:1px solid var(--border);
-  background:white;
+  background:var(--card);
   padding:9px 16px;
   border-radius:8px;
   cursor:pointer;
   text-decoration:none;
   font-size:14px;
   font-weight:500;
-
+  color:var(--text);
   transition:all .15s ease;
 }
 
@@ -185,6 +186,7 @@ th{
   padding:10px;
   border-radius:8px;
   margin-bottom:10px;
+  color: black;
 }
 
 .msg.success{
@@ -205,6 +207,8 @@ th{
   gap:10px;
   margin-top:15px;
 }
+
+
 
 /* ---------- SMALL TEXT ---------- */
 
@@ -231,7 +235,6 @@ html[data-theme="dark"] {
   --text: #e5e7eb;
   --muted: #94a3b8;
   --border: rgba(255,255,255,0.10);
-
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
 
@@ -242,9 +245,15 @@ html[data-theme="dark"] {
 
 /* Ensure body respects the theme transition */
 body {
+  background-color: var(--bg);
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .card {
   transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+a.btn.ghost{
+  color: var(--text) !important;
+  background: var(--card) !important;
 }
