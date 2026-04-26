@@ -43,6 +43,7 @@ ALLOWED_HOSTS = [
     "timeclock.darkstarch.com",
     "127.0.0.1",
     "localhost",
+    "10.10.0.100",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -69,6 +70,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -156,8 +158,9 @@ USE_TZ = True
 # STATIC FILES
 # ---------------------------------------------------------------------
 
-STATIC_URL = "static/"
-
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ---------------------------------------------------------------------
 # AUTHENTICATION REDIRECTS

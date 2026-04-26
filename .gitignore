@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+src/timeclock-app/db.sqlite3
+src/timeclock-app/staticfiles/
