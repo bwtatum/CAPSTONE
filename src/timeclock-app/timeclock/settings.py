@@ -43,14 +43,16 @@ ALLOWED_HOSTS = [
     "timeclock.darkstarch.com",
     "127.0.0.1",
     "localhost",
-    "10.10.0.100",
+    "*",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://timeclock.darkstarch.com",
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://*.localhost",
     "https://timeclock.darkstarch.com",
+    "http://timeclock.darkstarch.com",
 ]
-
 # ---------------------------------------------------------------------
 # APPLICATION DEFINITION
 # ---------------------------------------------------------------------
