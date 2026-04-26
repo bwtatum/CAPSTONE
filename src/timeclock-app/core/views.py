@@ -32,19 +32,20 @@ def export_timesheets_csv(request):
     response['Content-Disposition'] = 'attachment; filename="timesheets.csv"'
 
     writer = csv.writer(response)
-    
-    # Header
-    writer.writerow(["Employee", "Date", "Start", "End", "Canceled"])
 
-    shifts = ScheduledShift.objects.all().order_by("-date")
+    writer.writerow(["Employee", "Clock In", "Clock Out", "Status", "Created At", "Edited By", "Edit Reason"])
+
+    shifts = WorkShift.objects.select_related("employee", "edited_by").order_by("-clock_in")
 
     for s in shifts:
         writer.writerow([
-            s.employee.username,
-            s.date,
-            s.start_time,
-            s.end_time,
-            s.is_canceled
+            s.employee.username if s.employee else "",
+            s.clock_in,
+            s.clock_out,
+            s.status,
+            s.created_at,
+            s.edited_by.username if s.edited_by else "",
+            s.edit_reason,
         ])
 
     return response
